@@ -1,0 +1,250 @@
+diff -aurN ppp-2.4.5.orig/chat/Makefile.linux ppp-2.4.5/chat/Makefile.linux
+--- ppp-2.4.5.orig/chat/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/chat/Makefile.linux	2010-02-16 14:50:23.000000000 +0100
+@@ -10,7 +10,7 @@
+ CDEF4=	-DFNDELAY=O_NDELAY		# Old name value
+ CDEFS=	$(CDEF1) $(CDEF2) $(CDEF3) $(CDEF4)
+ 
+-COPTS=	-O2 -g -pipe
++COPTS=	$(OPT_FLAGS)
+ CFLAGS=	$(COPTS) $(CDEFS)
+ 
+ INSTALL= install
+@@ -18,14 +18,14 @@
+ all:	chat
+ 
+ chat:	chat.o
+-	$(CC) -o chat chat.o
++	$(CC) $(OPTLDFLAGS) -o chat chat.o
+ 
+ chat.o:	chat.c
+ 	$(CC) -c $(CFLAGS) -o chat.o chat.c
+ 
+ install: chat
+ 	mkdir -p $(BINDIR) $(MANDIR)
+-	$(INSTALL) -s -c chat $(BINDIR)
++	$(INSTALL) -c chat $(BINDIR)
+ 	$(INSTALL) -c -m 644 chat.8 $(MANDIR)
+ 
+ clean:
+diff -aurN ppp-2.4.5.orig/pppd/Makefile.linux ppp-2.4.5/pppd/Makefile.linux
+--- ppp-2.4.5.orig/pppd/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppd/Makefile.linux	2010-02-16 18:12:18.000000000 +0100
+@@ -32,7 +32,8 @@
+ 
+ # CC = gcc
+ #
+-COPTS = -O2 -pipe -Wall -g
++COPTS = $(OPT_FLAGS) -pipe -Wall
++LDFLAGS += $(OPTLDFLAGS)
+ LIBS =
+ 
+ # Uncomment the next 2 lines to include support for Microsoft's
+@@ -62,13 +63,13 @@
+ 
+ HAS_SHADOW=y
+ #USE_PAM=y
+-#HAVE_INET6=y
++HAVE_INET6=y
+ 
+ # Enable plugins
+ PLUGIN=y
+ 
+ # Enable Microsoft proprietary Callback Control Protocol
+-#CBCP=y
++CBCP=y
+ 
+ # Enable EAP SRP-SHA1 authentication (requires libsrp)
+ #USE_SRP=y
+@@ -200,9 +201,7 @@
+ install: pppd
+ 	mkdir -p $(BINDIR) $(MANDIR)
+ 	$(EXTRAINSTALL)
+-	$(INSTALL) -s -c -m 555 pppd $(BINDIR)/pppd
+-	if chgrp pppusers $(BINDIR)/pppd 2>/dev/null; then \
+-	  chmod o-rx,u+s $(BINDIR)/pppd; fi
++	$(INSTALL) -c -m 555 pppd $(BINDIR)/pppd
+ 	$(INSTALL) -c -m 444 pppd.8 $(MANDIR)
+ 
+ pppd: $(PPPDOBJS)
+diff -aurN ppp-2.4.5.orig/pppd/plugins/Makefile.linux ppp-2.4.5/pppd/plugins/Makefile.linux
+--- ppp-2.4.5.orig/pppd/plugins/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppd/plugins/Makefile.linux	2010-02-16 18:13:54.000000000 +0100
+@@ -1,7 +1,7 @@
+ #CC	= gcc
+-COPTS	= -O2 -g
++COPTS	= $(OPT_FLAGS)
+ CFLAGS	= $(COPTS) -I.. -I../../include -fPIC
+-LDFLAGS	= -shared
++LDFLAGS	= $(OPTLDFLAGS) -shared
+ INSTALL	= install
+ 
+ DESTDIR = $(INSTROOT)@DESTDIR@
+diff -aurN ppp-2.4.5.orig/pppd/plugins/pppoatm/Makefile.linux ppp-2.4.5/pppd/plugins/pppoatm/Makefile.linux
+--- ppp-2.4.5.orig/pppd/plugins/pppoatm/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppd/plugins/pppoatm/Makefile.linux	2010-02-16 18:24:36.000000000 +0100
+@@ -1,7 +1,7 @@
+ #CC	= gcc
+-COPTS	= -O2 -g
++COPTS	= $(OPT_FLAGS)
+ CFLAGS	= $(COPTS) -I../.. -I../../../include -fPIC
+-LDFLAGS	= -shared
++LDFLAGS	= $(OPTLDFLAGS) -shared
+ INSTALL	= install
+ 
+ #***********************************************************************
+@@ -33,7 +33,7 @@
+ all: $(PLUGIN)
+ 
+ $(PLUGIN): $(PLUGIN_OBJS)
+-	$(CC) $(CFLAGS) -o $@ -shared $^ $(LIBS)
++	$(CC) $(OPTLDFLAGS) $(CFLAGS) -o $@ -shared $^ $(LIBS)
+ 
+ install: all
+ 	$(INSTALL) -d -m 755 $(LIBDIR)
+diff -aurN ppp-2.4.5.orig/pppd/plugins/pppol2tp/Makefile.linux ppp-2.4.5/pppd/plugins/pppol2tp/Makefile.linux
+--- ppp-2.4.5.orig/pppd/plugins/pppol2tp/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppd/plugins/pppol2tp/Makefile.linux	2010-02-16 18:24:57.000000000 +0100
+@@ -1,5 +1,5 @@
+ #CC	= gcc
+-COPTS	= -O2 -g
++COPTS	= $(OPT_FLAGS)
+ CFLAGS	= $(COPTS) -I. -I../.. -I../../../include -fPIC
+ LDFLAGS	= -shared
+ INSTALL	= install
+@@ -16,7 +16,7 @@
+ all: $(PLUGINS)
+ 
+ %.so: %.o
+-	$(CC) $(CFLAGS) -o $@ -shared $^ $(LIBS)
++	$(CC) $(OPTLDFLAGS) $(CFLAGS) -o $@ -shared $^ $(LIBS)
+ 
+ install: all
+ 	$(INSTALL) -d -m 755 $(LIBDIR)
+diff -aurN ppp-2.4.5.orig/pppd/plugins/radius/Makefile.linux ppp-2.4.5/pppd/plugins/radius/Makefile.linux
+--- ppp-2.4.5.orig/pppd/plugins/radius/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppd/plugins/radius/Makefile.linux	2010-02-16 18:25:35.000000000 +0100
+@@ -12,7 +12,7 @@
+ INSTALL	= install
+ 
+ PLUGIN=radius.so radattr.so radrealms.so
+-CFLAGS=-I. -I../.. -I../../../include -O2 -fPIC -DRC_LOG_FACILITY=LOG_DAEMON
++CFLAGS=$(OPT_FLAGS) -I. -I../.. -I../../../include -fPIC -DRC_LOG_FACILITY=LOG_DAEMON
+ 
+ # Uncomment the next line to include support for Microsoft's
+ # MS-CHAP authentication protocol.
+@@ -36,20 +36,20 @@
+ 
+ install: all
+ 	$(INSTALL) -d -m 755 $(LIBDIR)
+-	$(INSTALL) -s -c -m 755 radius.so $(LIBDIR)
+-	$(INSTALL) -s -c -m 755 radattr.so $(LIBDIR)
+-	$(INSTALL) -s -c -m 755 radrealms.so $(LIBDIR)
++	$(INSTALL) -c -m 755 radius.so $(LIBDIR)
++	$(INSTALL) -c -m 755 radattr.so $(LIBDIR)
++	$(INSTALL) -c -m 755 radrealms.so $(LIBDIR)
+ 	$(INSTALL) -c -m 444 pppd-radius.8 $(MANDIR)
+ 	$(INSTALL) -c -m 444 pppd-radattr.8 $(MANDIR)
+ 
+ radius.so: radius.o libradiusclient.a
+-	$(CC) -o radius.so -shared radius.o libradiusclient.a
++	$(CC) $(OPTLDFLAGS) -o radius.so -shared radius.o libradiusclient.a
+ 
+ radattr.so: radattr.o
+-	$(CC) -o radattr.so -shared radattr.o
++	$(CC) $(OPTLDFLAGS) -o radattr.so -shared radattr.o
+ 
+ radrealms.so: radrealms.o
+-	$(CC) -o radrealms.so -shared radrealms.o
++	$(CC) $(OPTLDFLAGS) -o radrealms.so -shared radrealms.o
+ 
+ CLIENTOBJS = avpair.o buildreq.o config.o dict.o ip_util.o \
+ 	clientid.o sendserver.o lock.o util.o md5.o
+diff -aurN ppp-2.4.5.orig/pppd/plugins/rp-pppoe/Makefile.linux ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux
+--- ppp-2.4.5.orig/pppd/plugins/rp-pppoe/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppd/plugins/rp-pppoe/Makefile.linux	2010-02-16 18:22:06.000000000 +0100
+@@ -25,12 +25,12 @@
+ # Version is set ONLY IN THE MAKEFILE!  Don't delete this!
+ RP_VERSION=3.8p
+ 
+-COPTS=-O2 -g
++COPTS=$(OPT_FLAGS)
+ CFLAGS=$(COPTS) -I../../../include '-DRP_VERSION="$(RP_VERSION)"'
+ all: rp-pppoe.so pppoe-discovery
+ 
+ pppoe-discovery: pppoe-discovery.o debug.o
+-	$(CC) -o pppoe-discovery pppoe-discovery.o debug.o
++	$(CC) $(OPTLDFLAGS) -o pppoe-discovery pppoe-discovery.o debug.o
+ 
+ pppoe-discovery.o: pppoe-discovery.c
+ 	$(CC) $(CFLAGS) -c -o pppoe-discovery.o pppoe-discovery.c
+@@ -39,13 +39,13 @@
+ 	$(CC) $(CFLAGS) -c -o debug.o debug.c
+ 
+ rp-pppoe.so: plugin.o discovery.o if.o common.o
+-	$(CC) -o rp-pppoe.so -shared plugin.o discovery.o if.o common.o
++	$(CC) $(OPTLDFLAGS) -o rp-pppoe.so -shared plugin.o discovery.o if.o common.o
+ 
+ install: all
+ 	$(INSTALL) -d -m 755 $(LIBDIR)
+-	$(INSTALL) -s -c -m 4550 rp-pppoe.so $(LIBDIR)
++	$(INSTALL) -c -m 4550 rp-pppoe.so $(LIBDIR)
+ 	$(INSTALL) -d -m 755 $(BINDIR)
+-	$(INSTALL) -s -c -m 555 pppoe-discovery $(BINDIR)
++	$(INSTALL) -c -m 555 pppoe-discovery $(BINDIR)
+ 
+ clean:
+ 	rm -f *.o *.so pppoe-discovery
+diff -aurN ppp-2.4.5.orig/pppdump/Makefile.linux ppp-2.4.5/pppdump/Makefile.linux
+--- ppp-2.4.5.orig/pppdump/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppdump/Makefile.linux	2010-02-16 18:23:19.000000000 +0100
+@@ -2,7 +2,7 @@
+ BINDIR = $(DESTDIR)/sbin
+ MANDIR = $(DESTDIR)/share/man/man8
+ 
+-CFLAGS= -O -I../include/net
++CFLAGS= $(OPT_FLAGS) -I../include/net
+ OBJS = pppdump.o bsd-comp.o deflate.o zlib.o
+ 
+ INSTALL= install
+@@ -10,12 +10,12 @@
+ all:	pppdump
+ 
+ pppdump: $(OBJS)
+-	$(CC) -o pppdump $(OBJS)
++	$(CC) $(OPTLDFLAGS) -o pppdump $(OBJS)
+ 
+ clean:
+ 	rm -f pppdump $(OBJS) *~
+ 
+ install:
+ 	mkdir -p $(BINDIR) $(MANDIR)
+-	$(INSTALL) -s -c pppdump $(BINDIR)
++	$(INSTALL) -c pppdump $(BINDIR)
+ 	$(INSTALL) -c -m 444 pppdump.8 $(MANDIR)
+diff -aurN ppp-2.4.5.orig/pppstats/Makefile.linux ppp-2.4.5/pppstats/Makefile.linux
+--- ppp-2.4.5.orig/pppstats/Makefile.linux	2010-02-16 14:47:55.000000000 +0100
++++ ppp-2.4.5/pppstats/Makefile.linux	2010-02-16 18:23:54.000000000 +0100
+@@ -10,7 +10,7 @@
+ PPPSTATOBJS = pppstats.o
+ 
+ #CC = gcc
+-COPTS = -O
++COPTS = $(OPT_FLAGS)
+ COMPILE_FLAGS = -I../include
+ LIBS =
+ 
+@@ -22,11 +22,11 @@
+ 
+ install: pppstats
+ 	-mkdir -p $(MANDIR)
+-	$(INSTALL) -s -c pppstats $(BINDIR)
++	$(INSTALL) -c pppstats $(BINDIR)
+ 	$(INSTALL) -c -m 444 pppstats.8 $(MANDIR)
+ 
+ pppstats: $(PPPSTATSRCS)
+-	$(CC) $(CFLAGS) -o pppstats pppstats.c $(LIBS)
++	$(CC) $(OPTLDFLAGS) $(CFLAGS) -o pppstats pppstats.c $(LIBS)
+ 
+ clean:
+ 	rm -f pppstats *~ #* core
