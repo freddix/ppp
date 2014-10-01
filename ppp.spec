@@ -1,11 +1,12 @@
+# based on PLD Linux spec git://git.pld-linux.org/packages/ppp.git
 Summary:	ppp daemon package for Linux
 Name:		ppp
-Version:	2.4.5
-Release:	2
+Version:	2.4.7
+Release:	1
 License:	distributable
 Group:		Networking/Daemons
 Source0:	ftp://ftp.samba.org/pub/ppp/%{name}-%{version}.tar.gz
-# Source0-md5:	4621bc56167b6953ec4071043fe0ec57
+# Source0-md5:	78818f40e6d33a1d1de68a1551f6595a
 Source1:	%{name}.pamd
 Source2:	%{name}.pon
 Source3:	%{name}.poff
@@ -17,8 +18,7 @@ Patch4:		%{name}-pidfile-owner.patch
 Patch5:		%{name}-rp-pppoe-macaddr.patch
 Patch6:		%{name}d-2.4.2-chapms-strip-domain.patch
 Patch7:		%{name}-openssl.patch
-Patch8:		%{name}-llc.patch
-Patch9:		%{name}-lib64.patch
+Patch8:		%{name}-lib64.patch
 URL:		http://www.samba.org/ppp/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -51,12 +51,9 @@ Development files needed to build plugins for pppd.
 %patch5 -p1
 %patch6 -p1
 %patch7 -p1
-%patch8 -p1
 %ifarch %{x8664}
-%patch9 -p1
+%patch8 -p1
 %endif
-
-%{__rm} include/linux/if_pppol2tp.h
 
 %build
 # note: not autoconf configure
